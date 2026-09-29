@@ -37,9 +37,10 @@
   figure img { display: block; width: 100%; height: auto; border-radius: 4px; }
   figcaption { font-size: 0.85rem; color: #444; margin-top: 0.4rem; }
 
-  .fig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  @media (max-width: 600px) { .fig-row { grid-template-columns: 1fr; } }
-  .fig-row figure { margin: 1.4rem 0 0; }
+  .fig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .fig-row figure { margin: 0; }
+  .fig-row figcaption { text-align: center; }
+  .fig-row-caption { font-size: 0.85rem; color: #444; margin-top: 0.4rem; }
 
   pre {
     margin: 1rem 0;
@@ -109,10 +110,19 @@
       <li><b>Grade it.</b> I test the estimate against new movements it never saw during testing.</li>
     </ol>
 
-    <figure>
-      <img src="renders/healthy_vs_faulty.png" alt="Side by side MuJoCo renders comparing a healthy robot trotting to a robot with a weakened rear-right hip motor at three points in time; the faulty one visibly tips over by the last frame.">
-      <figcaption>Same walking command and starting position, three moments in time. Top row is healthy. Bottom row has one rear hip motor cut to 35% strength, exaggerated here for visibility. By 2.5 seconds it has tipped over.</figcaption>
-    </figure>
+    <div class="fig-row">
+      <figure>
+        <img src="renders/healthy.gif" alt="Animated MuJoCo render of the healthy Go1 robot trotting normally.">
+        <figcaption>Healthy.</figcaption>
+      </figure>
+      <figure>
+        <img src="renders/faulty.gif" alt="Animated MuJoCo render of the Go1 robot with a weakened rear-right hip motor, tipping over while trying to trot.">
+        <figcaption>Rear hip motor cut to 35% strength.</figcaption>
+      </figure>
+    </div>
+    <p class="fig-row-caption">
+      Same walking command and starting position, exaggerated here for visibility. The faulty one tips over within a few seconds.
+    </p>
 
     <h3>What the agent actually has access to</h3>
     <p>
