@@ -17,7 +17,7 @@ from src.perturbations import set_actuator_strength_scale
 
 OUT_DIR = Path(__file__).resolve().parents[1] / "results" / "renders"
 WIDTH, HEIGHT = 480, 360
-DURATION = 6.0
+DURATION = 4.5
 FPS = 20
 
 
