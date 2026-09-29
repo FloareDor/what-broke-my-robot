@@ -105,19 +105,15 @@
       <li><b>Healthy robot.</b> It's walking normally. This is all the agent gets told about.</li>
       <li><b>Something breaks.</b> I secretly change exactly one thing: grip, weight, or one leg motor's strength.</li>
       <li><b>It investigates.</b> It writes and runs its own test movements, up to 8 times.</li>
-      <li><b>It answers.</b> It submits an estimate, for example that the left leg is at 80% strength.</li>
-      <li><b>Grade it.</b> I test the estimate against new movements it never saw during testing.</li>
+      <li><b>It answers.</b> Three numbers: grip, weight, and each leg motor's strength. Any it skips count as unchanged.</li>
+      <li><b>Grade it.</b> I test the guess against new movements it never saw during testing.</li>
     </ol>
 
     <p>
-      Grading works like this: I build a robot model from whatever the method guessed, then run it through two
-      gaits it never saw during testing and compare where its torso ends up against where the real, hidden
-      robot's torso actually ends up. That distance in meters, averaged over both gaits, is the
-      <b>held-out error</b> in Figures 1 and 2. Lower is better, zero means the guess predicts the real robot
-      perfectly. Separately, since I know the true fault in every episode, I can also score the guess directly:
-      how far off the guessed value is from the true one, for whichever single thing actually broke. That's the
-      <b>parameter error</b> in Figure 3. A method that never guesses a parameter is scored as if it had said
-      the robot was still healthy.
+      Grading: I build a robot from the guess, run it through two new gaits, and see how far its torso ends up
+      from where the real robot's torso ends up. Meters of drift, averaged over both gaits. That's the
+      <b>held-out error</b> in Figures 1 and 2, lower is better. I also just check the guessed number against
+      the true one directly, that's the <b>parameter error</b> in Figure 3.
     </p>
 
     <div class="fig-row">
