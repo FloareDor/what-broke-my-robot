@@ -8,13 +8,14 @@ I take a simulated Unitree Go1 quadruped in MuJoCo, secretly change one physical
 
 ## why I reused so much stuff
 
-The point of this project is the agent doing active diagnosis. It's not about me building a quadruped simulator, a controller, or an optimizer from scratch, none of that is the interesting part. So I grabbed all of it:
+The interesting part is the agent doing diagnosis, not a simulator or an optimizer. So I grabbed what already exists:
 
-- **robot model**: Go1 from MuJoCo Menagerie (Google DeepMind's repo of ready-made robot models). It lives in `third_party/mujoco_menagerie` as a git submodule.
-- **controller**: the model already ships with a tuned standing pose (a "home" keyframe). I added a simple hand-coded trot on top of it, no training, just sine waves timed right.
-- **fitting baseline**: `scipy.optimize.least_squares`. I'm not writing my own optimizer.
-- **coding agent**: the Gemini API, called directly with plain function calling. No agent framework, just a while loop.
-- **everything else** (env wrapper, perturbations, the experiment API, the agent loop, the tool functions) is mine, because that's the actual research.
+- **robot**: Go1 from MuJoCo Menagerie, a submodule in `third_party/`.
+- **controller**: the model's own standing pose, plus a hand-coded sine-wave trot on top. No training.
+- **fitting**: `scipy.optimize.least_squares`.
+- **agent**: Gemini API, plain function calling, no framework.
+
+Everything else (env, perturbations, experiment API, agent loop) is mine.
 
 ## how it works
 
