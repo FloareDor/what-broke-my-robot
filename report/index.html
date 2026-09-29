@@ -5,18 +5,36 @@
 
 <style>
   :root {
-    --bg: #14181a;
-    --ink: #e9ede6;
-    --muted: #9aa398;
-    --line: #313830;
-    --accent: #ff8f4d;
+    --bg: #eef1ec;
+    --ink: #1a2420;
+    --muted: #5c655c;
+    --line: #d2d8cb;
+    --accent: #b34e08;
     --code-bg: #1e2420;
     --code-ink: #e6e9e3;
     --code-comment: #7fa88a;
   }
 
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a;
+      --ink: #e9ede6;
+      --muted: #9aa398;
+      --line: #313830;
+      --accent: #ff8f4d;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14181a;
+    --ink: #e9ede6;
+    --muted: #9aa398;
+    --line: #313830;
+    --accent: #ff8f4d;
+  }
+
   * { box-sizing: border-box; }
-  html { color-scheme: dark; }
+  html { color-scheme: light dark; }
 
   body {
     margin: 0;
@@ -275,12 +293,12 @@ def policy(t, obs):
 
     <div class="chart-row">
       <figure class="on-white">
-        <img src="plots/held_out_error_vs_budget.png" alt="Line chart: held-out body position error vs experiment budget, comparing doing nothing against random probing.">
-        <figcaption>Fig. 1: error after seeing new movements, by how many tests were allowed. Lower is better.</figcaption>
+        <img src="plots/held_out_error_vs_budget.png" alt="Line chart: held-out body position error vs experiment budget, comparing doing nothing, random probing, and the coding agent.">
+        <figcaption>Fig. 1: error after seeing new movements, by how many tests were allowed. Lower is better. The coding agent only has a budget=8 point, from 3 episodes, hence the wide error bar.</figcaption>
       </figure>
       <figure class="on-white">
-        <img src="plots/error_by_fault_type.png" alt="Bar chart: held-out body position error by fault type, comparing doing nothing against random probing.">
-        <figcaption>Fig. 2: same comparison, split by what actually broke.</figcaption>
+        <img src="plots/error_by_fault_type.png" alt="Bar chart: held-out body position error by fault type, comparing doing nothing, random probing, and the coding agent.">
+        <figcaption>Fig. 2: same comparison, split by what actually broke. The coding agent only ran against actuator faults so far.</figcaption>
       </figure>
     </div>
 
@@ -301,8 +319,8 @@ def policy(t, obs):
     </p>
 
     <figure class="on-white" style="max-width: 420px;">
-      <img src="plots/param_error_vs_budget.png" alt="Line chart: parameter estimation error vs experiment budget.">
-      <figcaption>Fig. 3: how close the guessed cause is to the true cause, by test budget.</figcaption>
+      <img src="plots/param_error_vs_budget.png" alt="Line chart: parameter estimation error vs experiment budget, including the coding agent.">
+      <figcaption>Fig. 3: how close the guessed cause is to the true cause, by test budget. The coding agent's actual fault diagnosis is the best of the three, even in the runs where it lost on held-out error.</figcaption>
     </figure>
 
     <h3>B. The coding agent, 5 real runs</h3>
