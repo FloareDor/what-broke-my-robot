@@ -171,6 +171,10 @@ def policy(t, obs):
 
     <p>Identifying that a specific rear hip motor is 18% weak from tables like this, using 8 tries or fewer, is the task.</p>
 
+    <p><code>submit_model</code> takes grip, weight, and a strength number per leg motor, all optional. Skip one and it counts as unchanged. A real call, correctly blaming one motor:</p>
+
+    <pre>{ "actuator_scale": { "RR_hip": 0.8 } }</pre>
+
     <h3>Three methods I compare</h3>
     <p>I run each one through the same steps 2 through 4:</p>
     <ul>
