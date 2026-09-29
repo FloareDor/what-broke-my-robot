@@ -76,15 +76,19 @@
   <section>
     <h2>Motivation</h2>
     <p>
-      Real machines drift over time: a motor weakens, a surface gets slicker, weight shifts. Nobody tells the
-      robot what changed, it has to notice on its own. The usual fix is a person running diagnostic tests by
-      hand. I wanted to test whether an AI agent can do this itself: design its own tests, read the results,
-      and figure out the cause.
+      Robots drift: a motor weakens, a surface gets slicker, a payload shifts. An adaptive controller can
+      compensate for this without ever figuring out why. Recent work has looked at pieces of the harder
+      version of this problem: fitting physical parameters from trajectories an experimenter already
+      collected (LLMPhy), poking at objects to learn their properties (PhysCaP), updating a self-model after
+      damage (Bongard et al., 2006). What's less studied is an agent that notices something changed about its
+      own body, decides what experiment would tell competing explanations apart, and actually goes and runs
+      it.
     </p>
     <p>
-      I used a standard, off-the-shelf simulator, walking controller, and curve-fitting baseline instead of
-      building any of these myself. The only new part is the diagnosis step: can an agent figure out the fault
-      better than the alternatives?
+      I wanted to test that directly. I used a standard, off-the-shelf simulator, walking controller, and
+      curve-fitting baseline instead of building any of these myself. The only new part is the diagnosis
+      step: given a fixed budget of experiments on its own, possibly broken, body, can an agent figure out
+      what changed better than random probing?
     </p>
   </section>
 
