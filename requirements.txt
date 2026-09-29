@@ -1,0 +1,8 @@
+mujoco>=3.0
+gymnasium>=1.0
+numpy
+scipy
+pandas
+matplotlib
+google-genai
+python-dotenv

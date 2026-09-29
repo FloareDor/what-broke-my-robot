@@ -1,0 +1,381 @@
+<title>What Broke My Robot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #14181a;
+    --ink: #e9ede6;
+    --muted: #9aa398;
+    --line: #313830;
+    --accent: #ff8f4d;
+    --code-bg: #1e2420;
+    --code-ink: #e6e9e3;
+    --code-comment: #7fa88a;
+  }
+
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  a { color: var(--accent); }
+  code { font-family: "IBM Plex Mono", monospace; font-size: 0.9em; }
+
+  .page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+  }
+
+  h1, h2, h3 { text-wrap: balance; font-weight: 600; }
+
+  h1 {
+    font-size: 2rem;
+    line-height: 1.15;
+    margin: 0 0 0.6rem;
+    letter-spacing: -0.01em;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+    margin: 3rem 0 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  h3 { font-size: 1.05rem; margin: 2rem 0 0.7rem; }
+
+  p { margin: 0 0 1rem; }
+  ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.4rem; }
+
+  .lede {
+    font-size: 1.08rem;
+    color: var(--muted);
+    max-width: 620px;
+  }
+
+  .meta {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 1.2rem 0 0;
+  }
+
+  figure { margin: 1.6rem 0; }
+
+  figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+
+  figure.on-white img { background: #fff; }
+
+  figcaption {
+    font-size: 0.86rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  @media (max-width: 640px) { .chart-row { grid-template-columns: 1fr; } }
+
+  /* pipeline diagram, kept per request that methodology be an actual flow */
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    margin: 1.4rem -0.2rem 1.8rem;
+    padding: 0.2rem;
+  }
+  .pipe-step { flex: 0 0 150px; padding: 0.9rem 1rem; border: 1px solid var(--line); border-radius: 8px; }
+  .pipe-step h4 { margin: 0 0 0.35rem; font-size: 0.88rem; }
+  .pipe-step p { margin: 0; font-size: 0.78rem; color: var(--muted); }
+  .pipe-arrow { flex: 0 0 28px; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+
+  pre.code {
+    margin: 1.2rem 0;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  pre.code .c { color: var(--code-comment); }
+
+  pre.json {
+    margin: 1.2rem 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 1.4rem 0;
+  }
+  th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 500; }
+  td.num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+  .table-wrap { overflow-x: auto; }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+</style>
+
+<div class="page">
+
+  <header>
+    <h1>What Broke My Robot?</h1>
+    <p class="lede">
+      Can an AI agent figure out what physically changed on a robot, just by running its own experiments,
+      better than doing nothing and better than testing at random?
+    </p>
+  </header>
+
+  <figure>
+    <img src="renders/hero_standing.png" alt="Rendered MuJoCo simulation of the Unitree Go1 quadruped robot standing on a checkered floor.">
+  </figure>
+
+  <section>
+    <h2>Motivation</h2>
+    <p>
+      Real machines drift over time: a motor weakens, a surface gets slicker, weight shifts. Nobody tells the
+      robot what changed, it has to notice on its own. The usual fix is a person running diagnostic tests by
+      hand. I wanted to test whether an AI agent can do this itself: design its own tests, read the results,
+      and figure out the cause.
+    </p>
+    <p>
+      I used a standard, off-the-shelf simulator, walking controller, and curve-fitting baseline instead of
+      building any of these myself. The only new part is the diagnosis step: can an agent figure out the fault
+      better than the alternatives?
+    </p>
+  </section>
+
+  <section>
+    <h2>Methodology</h2>
+    <p>
+      One round, an <b>episode</b>, works like this. The agent only ever sees the first box below, everything
+      in the middle is invisible to it. I kept the fault itself as simple as possible: exactly one physical
+      property changes per episode, never more than one, and the agent gets a small, fixed budget of 8
+      experiments to figure out which.
+    </p>
+
+    <div class="pipeline">
+      <div class="pipe-step"><h4>1. Healthy robot</h4><p>It's walking normally. This is all the agent gets told about.</p></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><h4>2. Something breaks</h4><p>I secretly change exactly one thing: grip, weight, or one leg motor's strength.</p></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><h4>3. It investigates</h4><p>It writes and runs its own test movements, up to 8 times.</p></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><h4>4. It answers</h4><p>It submits an estimate, for example that the left leg is at 80% strength.</p></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><h4>5. Grade it</h4><p>I test the estimate against new movements it never saw during testing.</p></div>
+    </div>
+
+    <figure class="on-white">
+      <img src="renders/healthy_vs_faulty.png" alt="Side by side MuJoCo renders comparing a healthy robot trotting to a robot with a weakened rear-right hip motor at three points in time; the faulty one visibly tips over by the last frame.">
+      <figcaption>Same walking command and starting position, three moments in time. Top row is healthy. Bottom row has one rear hip motor cut to 35% strength, exaggerated here for visibility. By 2.5 seconds it has tipped over.</figcaption>
+    </figure>
+
+    <h3>What the agent actually has access to</h3>
+    <p>
+      Everything in the picture above is invisible to it. It never sees an image, a video, or a 3D scene, only
+      four functions and whatever numbers they return:
+    </p>
+    <ul>
+      <li><code>inspect_model()</code>: static facts about the healthy robot, like joint names, movement limits, and its standing pose. It's free to call.</li>
+      <li><code>run_experiment(code, duration)</code>: the agent writes control code and runs it on the real, possibly broken robot. This costs 1 of its 8 tries.</li>
+      <li><code>inspect_trajectory(id)</code>: a numeric summary of a past run, like body position over time, per-joint tracking error and force, and which feet touched the ground. It's free, so the agent can call it as many times as it wants.</li>
+      <li><code>submit_model(estimate)</code>: the agent's final answer. This ends the episode.</li>
+    </ul>
+
+    <p>
+      Concretely, <code>run_experiment</code> takes actual Python. Here is a simple test the agent could write,
+      swinging one leg and holding the rest still:
+    </p>
+
+    <pre class="code"><span class="c"># leg motors are ordered [hip, thigh, calf] x [FR, FL, RR, RL]</span>
+def policy(t, obs):
+    ctrl = np.array([0.0, 0.9, -1.8] * 4)
+    ctrl[1] += 0.25 * np.sin(2 * np.pi * 0.8 * t)  <span class="c"># swing FR_thigh only</span>
+    return ctrl</pre>
+
+    <p>Here is what <code>inspect_trajectory</code> returned after one real run against a robot with a weakened rear hip motor. No labels, no hint anything is wrong, just numbers:</p>
+
+    <pre class="json">{
+  "n_steps": 150,
+  "torso_displacement_xyz": [0.061, 0.030, 0.007],
+  "torso_min_height": 0.252,
+  "torso_max_height": 0.306,
+  "per_actuator": {
+    "RR_hip":   { "mean_tracking_error": -0.004, "max_abs_tracking_error": 0.073 },
+    "FR_thigh": { "mean_tracking_error":  0.041, "max_abs_tracking_error": 0.244 },
+    "RL_calf":  { "mean_tracking_error": -0.073, "max_abs_tracking_error": 0.285 }
+    /* ... 9 more joints ... */
+  },
+  "foot_contact_fraction": { "FR": 0.65, "FL": 0.60, "RR": 0.60, "RL": 0.76 }
+}</pre>
+
+    <p>Identifying that a specific rear hip motor is 18% weak from tables like this, using 8 tries or fewer, is the task.</p>
+
+    <h3>Three methods I compare</h3>
+    <p>I run each one through the same steps 2 through 4:</p>
+    <ul>
+      <li><b>A, do nothing:</b> I assume the robot is still healthy. This is the baseline I compare the other two methods against.</li>
+      <li><b>B, random probing:</b> I apply random leg movements 8 times, then fit the most likely explanation with scipy's standard least-squares optimizer, the simplest option available, rather than writing anything custom.</li>
+      <li><b>C, the coding agent:</b> Gemini 3.5 Flash. It designs its own tests on purpose, reads the results, and decides what to try next.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Results</h2>
+    <p>
+      I tested 60 baseline configurations, ran 5 real episodes with the coding agent, and along the way found
+      and fixed one real bug in the curve-fitting baseline.
+    </p>
+
+    <h3>A. Random probing vs. doing nothing</h3>
+    <p>
+      60 test runs: 3 kinds of fault &times; 5 random severities &times; 4 testing budgets (1, 2, 4, or 8
+      experiments). Random probing beats doing nothing on average for every fault type, though the margin is
+      modest and does not improve steadily as the test budget grows (Figure 1).
+    </p>
+
+    <div class="chart-row">
+      <figure class="on-white">
+        <img src="plots/held_out_error_vs_budget.png" alt="Line chart: held-out body position error vs experiment budget, comparing doing nothing against random probing.">
+        <figcaption>Fig. 1: error after seeing new movements, by how many tests were allowed. Lower is better.</figcaption>
+      </figure>
+      <figure class="on-white">
+        <img src="plots/error_by_fault_type.png" alt="Bar chart: held-out body position error by fault type, comparing doing nothing against random probing.">
+        <figcaption>Fig. 2: same comparison, split by what actually broke.</figcaption>
+      </figure>
+    </div>
+
+    <p>
+      <b>Optimizer bug.</b> The first full run of this sweep showed parameter error getting worse as the test
+      budget increased from 1 to 8 experiments, backwards from what more data should do. The cause was not
+      random probing itself: the curve-fitter's starting guess for leg-motor strength sat exactly on the edge
+      of its allowed range, a known weak point for this type of optimizer, and it was stopping after a
+      handful of tries without raising an error.
+    </p>
+    <p>
+      I fixed the default the simple way: moving the starting guess slightly off the edge, which is almost
+      free and resolves most of it. Before the fix, 8 tests scored worse than doing nothing. After, 8 tests
+      beat doing nothing. I also tried a more thorough fix, restarting the fit from several different points
+      instead of one, which gets much closer (one config went from parameter error 0.24 to 0.0015) but costs
+      30 to 90 minutes per fit since it means re-running the simulation many more times. I kept that as a
+      separate, slower check rather than the default.
+    </p>
+
+    <figure class="on-white" style="max-width: 420px;">
+      <img src="plots/param_error_vs_budget.png" alt="Line chart: parameter estimation error vs experiment budget.">
+      <figcaption>Fig. 3: how close the guessed cause is to the true cause, by test budget.</figcaption>
+    </figure>
+
+    <h3>B. The coding agent, 5 real runs</h3>
+    <p>
+      The same test, run five times with the coding agent in place of random probing. In every run it had 8
+      tests to find one hidden leg-motor fault. Its own submitted answers explain the pattern in the results:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Fault (true strength)</th><th>Agent's guess</th><th>Also guessed</th><th>Result</th><th>Outcome</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rear-right hip motor<br><small>true 0.818</small></td>
+            <td class="num">0.80</td>
+            <td>nothing extra</td>
+            <td>beat both baselines</td>
+            <td>Win</td>
+          </tr>
+          <tr>
+            <td>Front-right calf motor<br><small>true 0.788</small></td>
+            <td class="num">0.80</td>
+            <td>nothing extra</td>
+            <td class="num">0.0052 vs 0.131 / 0.102</td>
+            <td>Win</td>
+          </tr>
+          <tr>
+            <td>Front-right thigh motor<br><small>true 0.944, barely broken</small></td>
+            <td class="num">0.94</td>
+            <td>nothing extra</td>
+            <td class="num">0.065 vs 0.056 / 0.054</td>
+            <td>Tie</td>
+          </tr>
+          <tr>
+            <td>Rear-right thigh motor<br><small>true 0.887</small></td>
+            <td class="num">~right</td>
+            <td>grip 1.5&times;, weight 1.3&times; (both wrong)</td>
+            <td class="num">0.250 vs 0.071 / 0.071</td>
+            <td>Loss</td>
+          </tr>
+          <tr>
+            <td>Front-right calf motor<br><small>true 0.712</small></td>
+            <td class="num">0.71</td>
+            <td>grip 0.64&times;, weight 2.25&times; (both wrong)</td>
+            <td class="num">0.236 vs 0.157 / 0.157</td>
+            <td>Loss</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      In the three runs where the agent left grip and weight unset, since it had not actually tested them, it
+      either won outright or tied a case where doing nothing was already close to optimal. In the two runs
+      where it also submitted a guess for grip or weight, that guess was wrong both times, and was enough on
+      its own to make the result worse than doing nothing, even though its leg-motor estimate in those same
+      two runs was the most accurate in the whole study (parameter error 0.0018 and 0.0044, better than either
+      baseline). The agent's diagnosis of the actual fault was consistently good across all five runs. The
+      failure was submitting confident values for parameters it had no evidence about.
+    </p>
+  </section>
+
+  <section>
+    <h2>Next Steps</h2>
+    <ol>
+      <li>Run the full-scale version of this test with the coding agent included: many more severities and fault types, not just 5 runs. I need this for a statistically meaningful answer to whether the agent beats random probing. I haven't done it yet because of the API cost and time it would take.</li>
+      <li>Tell the agent, directly, that a wrong guess costs more than an honest blank. This is the cheapest fix for the failure above, and I can test it against the two known losing runs.</li>
+      <li>Lock down how the agent's test code actually runs. Right now it is unrestricted, which is fine for one trusted user locally, but it's worth hardening before anyone else's code runs through it.</li>
+      <li>Add automated tests for the simulation and fitting code. None exist yet; I've only checked the pipeline by running it and reading the numbers.</li>
+    </ol>
+  </section>
+
+
+</div>
